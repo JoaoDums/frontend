@@ -2,10 +2,10 @@
 
 import { ref, onMounted } from "vue";
 import axios from "axios";
-
 import TaskForm from "./components/taskForm.vue";
 import TaskList from "./components/taskList.vue";
 
+const API_URL = "https://backend-ht8e.onrender.com";
 const tasks = ref([]);
 const email = ref("");
 const password = ref("");
@@ -17,12 +17,13 @@ const token = ref(
 const newTask = ref("");
 const newDescription = ref("");
 
+
 async function login() {
 
   try {
 
     const response = await axios.post(
-      "http://localhost:3000/login",
+      `${API_URL}/login`,
       {
         email: email.value,
         password: password.value
@@ -49,7 +50,7 @@ async function login() {
 async function deleteTask(taskId) {
 
   await axios.delete(
-    `http://localhost:3000/tasks/${taskId}`,
+    `${API_URL}/tasks/${taskId}`,
     {
       headers: {
         Authorization: `Bearer ${token.value}`
@@ -75,7 +76,7 @@ function logout() {
 async function getTasks() {
 
   const response = await axios.get(
-    "http://localhost:3000/tasks",
+    `${API_URL}/tasks`,
     {
       headers: {
         Authorization: `Bearer ${token.value}`
@@ -91,7 +92,7 @@ async function createTask() {
   if (!newTask.value) return;
 
   await axios.post(
-    "http://localhost:3000/tasks",
+    `${API_URL}/tasks`,
     {
       title: newTask.value,
       description: newDescription.value
@@ -113,7 +114,7 @@ async function createTask() {
 async function toggleTask(task) {
 
   await axios.put(
-    `http://localhost:3000/tasks/${task.id}`,
+    `${API_URL}/tasks/${task.id}`,
     {
       done: !task.done
     }
