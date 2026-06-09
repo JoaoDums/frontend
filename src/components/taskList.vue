@@ -1,6 +1,6 @@
 <script setup>
 
-import TaskItem from "./TaskItem.vue";
+import TaskItem from "./taskItem.vue";
 
 defineProps({
   tasks: Array
@@ -24,7 +24,7 @@ defineEmits([
     />
 
     <p v-if="tasks.length === 0" class="empty">
-      Nenhuma tarefa ainda 💤
+      Nenhuma tarefa cadastrada.
     </p>
   </ul>
 </template>
@@ -41,7 +41,7 @@ defineEmits([
 
 .empty {
   text-align: center;
-  color: #999;
+  color: #000000;
   margin-top: 20px;
 }
 </style>

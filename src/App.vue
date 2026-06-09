@@ -3,18 +3,84 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
-import TaskForm from "./components/TaskForm.vue";
-import TaskList from "./components/TaskList.vue";
+import TaskForm from "./components/taskForm.vue";
+import TaskList from "./components/taskList.vue";
 
 const tasks = ref([]);
+const email = ref("");
+const password = ref("");
+
+const token = ref(
+  localStorage.getItem("token") || ""
+);
 
 const newTask = ref("");
 const newDescription = ref("");
 
+async function login() {
+
+  try {
+
+    const response = await axios.post(
+      "http://localhost:3000/login",
+      {
+        email: email.value,
+        password: password.value
+      }
+    );
+
+    token.value = response.data.token;
+
+    localStorage.setItem(
+      "token",
+      token.value
+    );
+
+    getTasks();
+
+  } catch (error) {
+
+    alert("Email ou senha inválidos");
+
+  }
+
+}
+
+async function deleteTask(taskId) {
+
+  await axios.delete(
+    `http://localhost:3000/tasks/${taskId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    }
+  );
+
+  getTasks();
+}
+
+function logout() {
+
+  localStorage.removeItem(
+    "token"
+  );
+
+  token.value = "";
+
+  tasks.value = [];
+
+}
+
 async function getTasks() {
 
   const response = await axios.get(
-    "http://localhost:3000/tasks"
+    "http://localhost:3000/tasks",
+    {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    }
   );
 
   tasks.value = response.data;
@@ -29,6 +95,11 @@ async function createTask() {
     {
       title: newTask.value,
       description: newDescription.value
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
     }
   );
 
@@ -38,14 +109,6 @@ async function createTask() {
   getTasks();
 }
 
-async function deleteTask(taskId) {
-
-  await axios.delete(
-    `http://localhost:3000/tasks/${taskId}`
-  );
-
-  getTasks();
-}
 
 async function toggleTask(task) {
 
@@ -60,16 +123,52 @@ async function toggleTask(task) {
 }
 
 onMounted(() => {
-  getTasks();
+
+  if (token.value) {
+    getTasks();
+  }
+
 });
 
 </script>
 
 
 <template>
-  <div class="app">
+
+  <div v-if="!token" class="app">
+
     <div class="container">
-      <h1> Lista de Tarefas</h1>
+
+      <h1>Login</h1>
+
+      <input
+        v-model="email"
+        placeholder="Email"
+      />
+
+      <input
+        v-model="password"
+        type="password"
+        placeholder="Senha"
+      />
+
+      <button @click="login">
+        Entrar
+      </button>
+
+    </div>
+
+  </div>
+
+  <div v-else class="app">
+
+    <button @click="logout">
+  sair
+    </button>
+
+<div class="container">
+
+      <h1>Lista de Tarefas</h1>
 
       <TaskForm
         :newTask="newTask"
@@ -84,8 +183,11 @@ onMounted(() => {
         @deleteTask="deleteTask"
         @toggleTask="toggleTask"
       />
+
     </div>
+
   </div>
+
 </template>
 
 
